@@ -1,0 +1,27 @@
+* Introduction
+
+  Packrat (or pr) is a system for storing everything digital, forever, in a way that makes it easy to find things by when they occured in time. It provides a couple of features for organizing items in other ways, but it is not optimized for that. It can be used to store anything digital, but I will mostly use it for images and video. 
+
+  pr is like perkeep in it's vision (store everything forever) but unlike it in that it makes compromises to be simpler. It doesn't attempt to do anything clever with storage to optimize for space or efficiency (it is a thin wrapper over object storage). Its index is simple and limited in what it can express. The index is not stored in the storage. The list could go on.
+
+  Why make this and not use something like perkeep? I used perkeep (Camlistore at the time) and liked it, but I felt like it required me to have a copy of all the data and the index on every device I used with it, which lead me to running an instance of it in a cloud provider. Even then, it seemed like for best performance I had to keep all of the data on disk and in an object store for availability. Then I stopped using Camlistore for a while. When I came back to it, things had changed enough that I couldn't get my data back out again easily. How was this supposed to work for ever when it only took a few months for me to nearly lose my data?
+
+  I had a conversation with someone about legacy data formats and he said, "just give me the bytes." If you just have the bytes, you have a better chance of getting the data back in the future. I tried writing something that was like Camlistore in that it deduplicated data and efficiently packed blobs into object storage, but then I realized I was just creating the same problem again. pr does almost nothing with the storage in an attempt to make it so you can always just get the bytes.
+
+
+ 
+* Components
+** Index
+   Packrat's index is a collection of entries that describe data in the store. An entry includes an arbitrary ID, timestamp, type, importance (an integer specifying how much I care about this thing, for filtering), and the storage location of the item and it's thumbnail. Each entry may also contain an arbitrary name for the entry and a maidenhead gridsquare locator. There may also be implementation specific attributes in an index entry.
+
+   The index will be optimized for querying by the timestamp or gridsquare with filtering on importance, type, or timestamp.
+
+   The index is mutable, but that should mostly be limited to changing importance.
+
+   The index supports aliases, or human readable names for entries. It also supports relations, which are entries that are somehow related to another entry.
+** Store
+   Packrat's store is a content addressable store. Data in the store could be in different places (small objects staged into a database, larger ones on object storage, concatenated objects stored in object storage, etc). The store will have it's own index that maps hash to storage location, and pr's index will have storage details in it (location, byteoffset, size) so that you can find data with only one lookup.
+
+
+
+
