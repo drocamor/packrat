@@ -2,15 +2,11 @@ package index
 
 import (
 	"fmt"
-	"github.com/satori/go.uuid"
 	"time"
-)
+	"github.com/drocamor/packrat/store"
+	"github.com/satori/go.uuid"
 
-type StorageAddress struct {
-	Location string
-	Size     int
-	Offset   int
-}
+)
 
 type Entry struct {
 	Id         string // a string representation of the sha256 hash for this item
@@ -25,8 +21,8 @@ type Entry struct {
 	TimestampId  string `json:",omitempty"` // concatenation of timestamp and Id
 	GridsquareId string `json:",omitempty"` // concatenation of gridsquare and Id
 
-	Object    StorageAddress
-	Thumbnail StorageAddress
+	Object    store.Address
+	Thumbnail store.Address
 }
 
 type Index interface {
