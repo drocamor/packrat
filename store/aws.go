@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -128,11 +129,46 @@ func (s *AWSStore) Get(score string, w io.Writer) error {
 
 }
 
-func (s *AWSStore) GetAddress(a Address, w io.Writer) error {
-	// If DDB, read each part and write them to w
+func resolveS3Uri(uri string) (bucket, key string, err error) {
+	if strings.HasPrefix(uri, "s3://") != true {
+		err = fmt.Errorf("Invalid s3 uri: %q", uri)
+		return
+	}
 
-	// If S3, use the downloader to get all the bytes and write them to w
-	return nil
+	shortUri := uri[5:]
+
+	bucketAndKey := strings.SplitN(shortUri, "/", 2)
+
+	if len(bucketAndKey) != 2 {
+		err = fmt.Errorf("Invalid s3 uri: %q", uri)
+		return
+	}
+
+	bucket = bucketAndKey[0]
+	key = bucketAndKey[1]
+
+	return
+}
+
+func (s *AWSStore) GetAddress(a Address, w io.Writer) error {
+	bucket, key, err := resolveS3Uri(a.Location)
+	if err != nil {
+		return err
+	}
+
+	params := (&s3.GetObjectInput{}).
+		SetBucket(bucket).
+		SetKey(key)
+
+	resp, err := s.s3Svc.GetObject(params)
+	defer resp.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(w, resp.Body)
+
+	return err
 }
 
 func (s *AWSStore) Describe(score string) (Address, error) {
