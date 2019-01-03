@@ -3,13 +3,14 @@ package index
 import (
 	"crypto/rand"
 	"fmt"
-	"time"
 	"github.com/drocamor/packrat/store"
-
+	"time"
 )
 
 const (
-	junkLength 32
+	junkLength          = 32
+	originalAddressKey  = "orig"
+	thumbnailAddressKey = "thumb"
 )
 
 type Entry struct {
@@ -34,15 +35,25 @@ func randomJunk() string {
 	return fmt.Sprintf("%X", b)
 }
 
+// idSuffix returns the suffix for the entries ID. it will be the score of the original item, or it will be some random string.
+func (e *Entry) idSuffix() string {
+	a, ok := e.Addresses[originalAddressKey]
+	if !ok {
+		return randomJunk()
+	}
+	return a.Score
+}
+
 // createIds makes the Id and GridsquareId fields, but only if the Id is empty and if the gridsquare field is populated
 func (e *Entry) createIds() {
 	if e.Id == "" {
+
 		ts := e.Timestamp.Format(time.RFC3339)
-		e.Id = ts + randomJunk()
+		e.Id = ts + e.idSuffix()
 	}
-	
+
 	if e.Gridsquare != "" {
-		e.GridSquareId = e.Gridsquare + e.Id
+		e.GridsquareId = e.Gridsquare + e.Id
 	}
 }
 
