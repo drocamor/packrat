@@ -29,8 +29,7 @@ func deleteEntry(idx DynamoDBIndex, id string) error {
 func TestDdb(t *testing.T) {
 	// cfg := (&aws.Config{}).WithRegion("us-west-2")
 	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String("us-west-2")}))
-	ddb := dynamodb.New(sess)
-	idx := NewDynamoDBIndex(ddb, "noone", "testPR")
+	idx := NewDynamoDBIndex(sess, "noone", "testPR")
 
 	t.Run("AddGetExists", func(t *testing.T) { testAddGetExists(&idx, t) })
 	t.Run("AliasGetAliasUnAlias", func(t *testing.T) { testAliasGetAliasUnAlias(&idx, t) })

@@ -3,6 +3,7 @@ package index
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"log"
@@ -40,8 +41,8 @@ type DynamoDBIndex struct {
 	group, tablePrefix string
 }
 
-func NewDynamoDBIndex(ddb *dynamodb.DynamoDB, group string, tablePrefix string) DynamoDBIndex {
-
+func NewDynamoDBIndex(sess *session.Session, group string, tablePrefix string) DynamoDBIndex {
+	ddb := dynamodb.New(sess)
 	return DynamoDBIndex{
 		ddb:         ddb,
 		group:       group,
