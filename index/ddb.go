@@ -9,9 +9,8 @@ import (
 )
 
 /*
-Entries: Id
-- GSI Timeline: username, timestamp-id
-- GSI Location: username, location-id
+Entries: timestamp-score
+- GSI Location: username, location-score
 
 Alias: alias
 Relations: id, otherid
@@ -20,33 +19,32 @@ Relations: id, otherid
 
 const (
 	entriesTable      = "Entries"
-	timestampIdIndex  = "UserId-TimestampId"
-	gridsquareIdIndex = "UserId-GridsquareId"
+	gridsquareIdIndex = "Group-Gridsquare"
 	aliasesTable      = "Aliases"
 	relationsTable    = "Relations"
 )
 
 type dynamoDBAlias struct {
-	UserId, Alias, Id string
+	Group, Alias, Id string
 }
 
 // dynamoDBRelation is a entry in the relations table.
-// A is always a concatenation of the userid, "-", and the id of the entry with the relationships
+// A is always a concatenation of the group, "-", and the id of the entry with the relationships
 // B is the Id of the entries that are related to A
 type dynamoDBRelation struct {
 	A, B string
 }
 
 type DynamoDBIndex struct {
-	ddb                 *dynamodb.DynamoDB
-	userId, tablePrefix string
+	ddb                *dynamodb.DynamoDB
+	group, tablePrefix string
 }
 
-func NewDynamoDBIndex(ddb *dynamodb.DynamoDB, userid string, tablePrefix string) DynamoDBIndex {
+func NewDynamoDBIndex(ddb *dynamodb.DynamoDB, group string, tablePrefix string) DynamoDBIndex {
 
 	return DynamoDBIndex{
 		ddb:         ddb,
-		userId:      userid,
+		group:       group,
 		tablePrefix: tablePrefix,
 	}
 }
@@ -64,7 +62,7 @@ func (i *DynamoDBIndex) relationsTable() string {
 }
 
 func (i *DynamoDBIndex) Add(entry Entry) error {
-	entry.UserId = i.userId
+	entry.Group = i.group
 	av, err := dynamodbattribute.MarshalMap(entry)
 	if err != nil {
 		return err
@@ -83,8 +81,8 @@ func (i *DynamoDBIndex) Get(id string) (Entry, error) {
 	var entry Entry
 
 	key := map[string]*dynamodb.AttributeValue{
-		"UserId": {
-			S: aws.String(i.userId),
+		"Group": {
+			S: aws.String(i.group),
 		},
 		"Id": {
 			S: aws.String(id),
@@ -123,9 +121,9 @@ func (i *DynamoDBIndex) Alias(alias, id string) error {
 
 	// Creates an alias in alias table.
 	a := dynamoDBAlias{
-		UserId: i.userId,
-		Alias:  alias,
-		Id:     id,
+		Group: i.group,
+		Alias: alias,
+		Id:    id,
 	}
 
 	// Conditional put based on if alias exists
@@ -148,8 +146,8 @@ func (i *DynamoDBIndex) GetAlias(alias string) (Entry, error) {
 
 	// Get on the Alias table
 	key := map[string]*dynamodb.AttributeValue{
-		"UserId": {
-			S: aws.String(i.userId),
+		"Group": {
+			S: aws.String(i.group),
 		},
 		"Alias": {
 			S: aws.String(alias),
@@ -183,8 +181,8 @@ func (i *DynamoDBIndex) GetAlias(alias string) (Entry, error) {
 func (i *DynamoDBIndex) UnAlias(alias string) error {
 	// Deletes from alias table
 	key := map[string]*dynamodb.AttributeValue{
-		"UserId": {
-			S: aws.String(i.userId),
+		"Group": {
+			S: aws.String(i.group),
 		},
 		"Alias": {
 			S: aws.String(alias),
@@ -207,7 +205,7 @@ func (i *DynamoDBIndex) Relate(a, b string) error {
 
 	// Puts to relations table
 	r := dynamoDBRelation{
-		A: i.userId + "-" + a,
+		A: i.group + "-" + a,
 		B: b,
 	}
 
@@ -227,7 +225,7 @@ func (i *DynamoDBIndex) Relate(a, b string) error {
 func (i *DynamoDBIndex) UnRelate(a, b string) error {
 	// Deletes from Relations table
 	r := dynamoDBRelation{
-		A: i.userId + "-" + a,
+		A: i.group + "-" + a,
 		B: b,
 	}
 
@@ -249,7 +247,7 @@ func (i *DynamoDBIndex) Relations(id string) []string {
 
 	values := map[string]*dynamodb.AttributeValue{
 		":a": {
-			S: aws.String(i.userId + "-" + id),
+			S: aws.String(i.group + "-" + id),
 		},
 	}
 

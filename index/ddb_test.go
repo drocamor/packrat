@@ -10,8 +10,8 @@ import (
 func deleteEntry(idx DynamoDBIndex, id string) error {
 	// Remove the entry
 	key := map[string]*dynamodb.AttributeValue{
-		"UserId": {
-			S: aws.String(idx.userId),
+		"Group": {
+			S: aws.String(idx.group),
 		},
 		"Id": {
 			S: aws.String(id),
