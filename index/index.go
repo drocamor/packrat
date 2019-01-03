@@ -1,8 +1,15 @@
 package index
 
 import (
-	"github.com/drocamor/packrat/store"
+	"crypto/rand"
+	"fmt"
 	"time"
+	"github.com/drocamor/packrat/store"
+
+)
+
+const (
+	junkLength 32
 )
 
 type Entry struct {
@@ -16,6 +23,27 @@ type Entry struct {
 	GridsquareId string    `json:",omitempty"` // concatenation of gridsquare and Id
 
 	Addresses map[string]store.Address // A map of where the data is stored. Typically there is an original and an thumbnail
+}
+
+func randomJunk() string {
+	b := make([]byte, junkLength)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%X", b)
+}
+
+// createIds makes the Id and GridsquareId fields, but only if the Id is empty and if the gridsquare field is populated
+func (e *Entry) createIds() {
+	if e.Id == "" {
+		ts := e.Timestamp.Format(time.RFC3339)
+		e.Id = ts + randomJunk()
+	}
+	
+	if e.Gridsquare != "" {
+		e.GridSquareId = e.Gridsquare + e.Id
+	}
 }
 
 type Index interface {

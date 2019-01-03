@@ -63,6 +63,7 @@ func (i *DynamoDBIndex) relationsTable() string {
 
 func (i *DynamoDBIndex) Add(entry Entry) error {
 	entry.Group = i.group
+	entry.createIds()
 	av, err := dynamodbattribute.MarshalMap(entry)
 	if err != nil {
 		return err
