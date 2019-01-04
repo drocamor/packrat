@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func deleteEntry(idx DynamoDBIndex, id string) error {
+func deleteEntry(idx *DynamoDBIndex, id string) error {
 	// Remove the entry
 	key := map[string]*dynamodb.AttributeValue{
 		"Group": {
@@ -31,9 +31,9 @@ func TestDdb(t *testing.T) {
 	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String("us-west-2")}))
 	idx := NewDynamoDBIndex(sess, "noone", "testPR")
 
-	t.Run("AddGetExists", func(t *testing.T) { testAddGetExists(&idx, t) })
-	t.Run("AliasGetAliasUnAlias", func(t *testing.T) { testAliasGetAliasUnAlias(&idx, t) })
-	t.Run("RelateRelationsUnrelate", func(t *testing.T) { testRelateRelationsUnrelate(&idx, t) })
+	t.Run("AddGetExists", func(t *testing.T) { testAddGetExists(idx, t) })
+	t.Run("AliasGetAliasUnAlias", func(t *testing.T) { testAliasGetAliasUnAlias(idx, t) })
+	t.Run("RelateRelationsUnrelate", func(t *testing.T) { testRelateRelationsUnrelate(idx, t) })
 	for _, k := range []string{"foo", "baz", "foraliasing", "anotheridforaliasing", "a", "b", "c"} {
 		err := deleteEntry(idx, k)
 		if err != nil {

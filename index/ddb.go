@@ -41,9 +41,9 @@ type DynamoDBIndex struct {
 	group, tablePrefix string
 }
 
-func NewDynamoDBIndex(sess *session.Session, group string, tablePrefix string) DynamoDBIndex {
+func NewDynamoDBIndex(sess *session.Session, group string, tablePrefix string) *DynamoDBIndex {
 	ddb := dynamodb.New(sess)
-	return DynamoDBIndex{
+	return &DynamoDBIndex{
 		ddb:         ddb,
 		group:       group,
 		tablePrefix: tablePrefix,

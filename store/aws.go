@@ -31,8 +31,8 @@ type AWSStore struct {
 	userId     string
 }
 
-func NewAWSStore(indexTable, bucket string, sess *session.Session) AWSStore {
-	return AWSStore{
+func NewAWSStore(sess *session.Session, indexTable, bucket string) *AWSStore {
+	return &AWSStore{
 		ddbSvc:     dynamodb.New(sess),
 		s3Svc:      s3.New(sess),
 		uploader:   s3manager.NewUploader(sess),
