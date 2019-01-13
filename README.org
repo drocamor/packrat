@@ -1,8 +1,8 @@
 * Introduction
 
-  Packrat (or pr) is a system for storing everything digital, forever, in a way that makes it easy to find things by when they occured in time. It provides a couple of features for organizing items in other ways, but it is not optimized for that. It can be used to store anything digital, but I will mostly use it for images and video. 
+  Packrat (or pkrt) is a system for storing everything digital, forever, in a way that makes it easy to find things by when they occured in time. It provides a couple of features for organizing items in other ways, but it is not optimized for that. It can be used to store anything digital, but I will mostly use it for images and video. 
 
-  pr is like perkeep in it's vision (store everything forever) but unlike it in that it makes compromises to be simpler. It doesn't attempt to do anything clever with storage to optimize for space or efficiency (it is a thin wrapper over object storage). Its index is simple and limited in what it can express. The index is not stored in the storage. The list could go on.
+  pkrt is like perkeep in it's vision (store everything forever) but unlike it in that it makes compromises to be simpler. It doesn't attempt to do anything clever with storage to optimize for space or efficiency (it is a thin wrapper over object storage). Its index is simple and limited in what it can express. The index is not stored in the storage. The list could go on.
 
   Why make this and not use something like perkeep? I used perkeep (Camlistore at the time) and liked it, but I felt like it required me to have a copy of all the data and the index on every device I used with it, which lead me to running an instance of it in a cloud provider. Even then, it seemed like for best performance I had to keep all of the data on disk and in an object store for availability. Then I stopped using Camlistore for a while. When I came back to it, things had changed enough that I couldn't get my data back out again easily. How was this supposed to work for ever when it only took a few months for me to nearly lose my data?
 
