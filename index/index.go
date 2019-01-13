@@ -2,6 +2,7 @@ package index
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"github.com/drocamor/packrat/store"
 	"time"
@@ -11,6 +12,10 @@ const (
 	junkLength          = 32
 	originalAddressKey  = "orig"
 	thumbnailAddressKey = "thumb"
+)
+
+var (
+	ErrAlreadyExists = errors.New("Entry already exists") // Add will return errors with this type if the entry already exists in the index
 )
 
 type Entry struct {

@@ -3,6 +3,7 @@ package index
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -76,7 +77,18 @@ func (i *DynamoDBIndex) Add(entry Entry) error {
 		SetItem(av)
 
 	_, err = i.ddb.PutItem(params)
+
+	// Return a special error if the entry is already in the index
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			if awsErr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
+				return ErrAlreadyExists
+			}
+		}
+	}
+
 	return err
+
 }
 
 func (i *DynamoDBIndex) Get(id string) (Entry, error) {
