@@ -44,10 +44,21 @@ func main() {
 
 	// Take a list of files from the args
 	for i := 0; i < len(filenames); i++ {
+
+		// Determine if it is an image - if not, skip it and log it
+		if !isImage(filenames[i]) {
+			log.Printf("Skipping %q because it is not an image", filenames[i])
+			continue
+		}
+
 		// Process each file in the list
 		err := process(filenames[i])
 		if err != nil {
-			log.Println("error was: ", err)
+			if err == index.ErrAlreadyExists {
+				log.Printf("File %q was already in the index", filenames[i])
+			} else {
+				log.Fatal("Error adding entry to index: ", err)
+			}
 		}
 	}
 
@@ -57,7 +68,6 @@ func isImage(filename string) bool {
 	cmd := exec.Command("/usr/bin/identify", filename)
 	err := cmd.Run()
 	if err != nil {
-		log.Printf("cmd.Run err: %v", err)
 		return false
 	}
 	return true
@@ -92,9 +102,6 @@ func createThumb(filename string) (string, error) {
 	log.Printf("thumb file is %q", tmp.Name())
 	cmd := exec.Command("/usr/bin/convert", "-resize", "480000@", filename, tmp.Name())
 	err = cmd.Run()
-	if err != nil {
-		log.Printf("cmd.Run err: %v", err)
-	}
 
 	return tmp.Name(), err
 }
@@ -141,10 +148,6 @@ func tsAndLocation(filename string) (time.Time, string) {
 }
 
 func process(filename string) error {
-	// Determine if it is an image - if not, skip it and log it
-	if !isImage(filename) {
-		return fmt.Errorf("%q is not an image.")
-	}
 
 	// Start uploading the image
 	origUploadChan := putStoreAsync(origStore, filename)
